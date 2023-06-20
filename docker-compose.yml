@@ -2,10 +2,10 @@ version: "3.9"
 
 services:
   django:
-    image: rqm-docker:0.0.1
+    image: rqm-docker:0.0.2
     build: .
     command: sh -c "
-        python manage.py runserver 0.0.0.0:8000 &&
+        python manage.py runserver 0.0.0.0:8000
     ports:
       - "80:8000"
     environment:
