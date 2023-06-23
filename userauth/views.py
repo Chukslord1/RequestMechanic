@@ -8,8 +8,6 @@ from userauth.models import User, UserProfile, OTPModel
 
 from userprofile.models import WorkExperience, Education, SocialProfile
 
-from userprofile.serializers import WorkExperienceSerializer, EducationSerializer, SocialProfileSerializer
-
 from rest_framework.response import Response
 
 from django.http import Http404
@@ -52,9 +50,6 @@ def OTP_create_send(email_linked, phone_linked):
     time_of_creation = int(time.time())
     OTPModel.objects.create(otp=otp, email_linked=email_linked,
                             phone_linked=phone_linked, time_created=time_of_creation)
-    # html_content = loader.render_to_string('index.html', context = {'otp' : otp,})
-    # mail_body = f"OTP is {otp}. This OTP will be valid for 5 minutes."
-    # send_mail('Greetings from SmartLearn Team', mail_body, 'LinkedInClone<utkp09@gmail.com>', [email_linked], html_message = html_content, fail_silently = False)
     return None
 
 
