@@ -22,6 +22,7 @@ from drf_yasg import openapi
 from rest_framework import permissions
 
 
+
 # API VERSION
 """Multiple API VERSIONS can be defined here and called in the urls patterns"""
 api_version = 'v1'
@@ -44,6 +45,7 @@ def trigger_error(request):
     division_by_zero = 1 / 0
 
 
+handler404 = 'userauth.views.handler404'
 urlpatterns = [
     path('', schema_view.with_ui('swagger', cache_timeout=0),
          name='schema-swagger-ui'),

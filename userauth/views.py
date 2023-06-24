@@ -32,6 +32,8 @@ from django.core.mail import send_mail
 
 from django.template import loader
 
+from django.http import JsonResponse
+
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -264,3 +266,11 @@ class ProfileRecommendView(views.APIView):
         serializer = UserProfileSearchSerailizer(
             query, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+def handler404(request, exception):
+    response_data = {
+        'error': 'Not found',
+        'message': 'The requested resource could not be found.',
+        'code':'404'
+    }
+    return JsonResponse(response_data, sstatus=status.HTTP_404_NOT_FOUND)
