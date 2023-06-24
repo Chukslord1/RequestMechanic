@@ -25,14 +25,14 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 
-# sentry_sdk.init(
-#     dsn="https://57cdb14cfa5a4a9aa129df4f1197ba69@o4505114191724544.ingest.sentry.io/4505114196705280",
+sentry_sdk.init(
+    dsn="https://57cdb14cfa5a4a9aa129df4f1197ba69@o4505114191724544.ingest.sentry.io/4505114196705280",
 
-#     # Set traces_sample_rate to 1.0 to capture 100%
-#     # of transactions for performance monitoring.
-#     # We recommend adjusting this value in production,
-#     traces_sample_rate=1.0,
-# )
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0,
+)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-xt5#bz(g+f1k1ttl-0@s80%gx7y+#s44$ka&b%g6)(v94y&31+'
