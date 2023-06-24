@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db import models
 from userauth.forms import UserAdminCreationForm, UserAdminChangeForm
-from userauth.models import User, OTPModel
+from userauth.models import User, UserProfile, OTPModel
 
 
 admin.site.register(OTPModel)

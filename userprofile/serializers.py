@@ -1,6 +1,9 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions, fields
 from .models import WorkExperience, Education, LicenseAndCertification, VolunteerExperience, ProfileView, SocialProfile
+from userauth.models import User, UserProfile
 from userauth.serializers import UserProfileSerializer
+from rest_framework import status
+import json
 
 
 class WorkExperienceSerializer(serializers.ModelSerializer):

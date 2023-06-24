@@ -1,7 +1,9 @@
 from rest_framework import serializers, exceptions
 from userauth.models import User, UserProfile
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from userauth import views
 import json
+from rest_framework import status
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

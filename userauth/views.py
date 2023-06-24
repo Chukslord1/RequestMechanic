@@ -10,7 +10,9 @@ import time
 from random import randint
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
 from rest_framework import filters
+from django.core.mail import send_mail
 
 
 def get_tokens_for_user(user):

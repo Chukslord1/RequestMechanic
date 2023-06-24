@@ -1,12 +1,18 @@
-from .models import WorkExperience, Education, LicenseAndCertification, VolunteerExperience, SocialProfile
-from .serializers import WorkExperienceSerializer, EducationSerializer, LicenseAndCertificationSerializer, VolunteerExperienceSerializer, SocialProfileSerializer
-from rest_framework import views, viewsets
+from django.shortcuts import render
+from .models import WorkExperience, Education, LicenseAndCertification, VolunteerExperience, SocialProfile, ProfileView
+from .serializers import WorkExperienceSerializer, EducationSerializer, LicenseAndCertificationSerializer, VolunteerExperienceSerializer, SocialProfileSerializer, ProfileViewSerializer
+from rest_framework import views, generics, viewsets
 from .permissions import IsAuthenticatedAndOwner
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from rest_framework.response import Response
+import json
 from userauth.models import UserProfile
+from userauth.serializers import UserProfileSerializer
+from django.http import Http404
 from django.shortcuts import get_object_or_404
+from rest_framework import filters
+from random import choice
 
 
 class SocialProfileView(views.APIView):

@@ -1,4 +1,5 @@
 from rest_framework.views import exception_handler
+from django.http import Http404
 from rest_framework import exceptions
 from userauth.models import User
 
