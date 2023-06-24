@@ -1,38 +1,16 @@
-from django.shortcuts import render
-
 from rest_framework import views, generics
-
 from userauth.serializers import UserSerializer, UserProfileSerializer, MyTokenObtainPairSerializer, UserProfileSearchSerailizer
-
 from userauth.models import User, UserProfile, OTPModel
-
 from userprofile.models import WorkExperience, Education, SocialProfile
-
 from rest_framework.response import Response
-
 from django.http import Http404
-
 from rest_framework import status
-
 from rest_framework.permissions import AllowAny
-
 import time
-
 from random import randint
-
 from rest_framework_simplejwt.views import TokenObtainPairView
-
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from django.utils import timezone
-
 from rest_framework import filters
-
-from django.core.mail import send_mail
-
-from django.template import loader
-
-from django.http import JsonResponse
 
 
 def get_tokens_for_user(user):
@@ -266,11 +244,3 @@ class ProfileRecommendView(views.APIView):
         serializer = UserProfileSearchSerailizer(
             query, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-def handler404(request, exception):
-    response_data = {
-        'error': 'Not found',
-        'message': 'The requested resource could not be found.',
-        'code':'404'
-    }
-    return JsonResponse(response_data, sstatus=status.HTTP_404_NOT_FOUND)

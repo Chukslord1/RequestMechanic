@@ -1,14 +1,13 @@
 from django.db import models
-
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
 
-import datetime
 
 from django.conf import settings
 
 from django.core.validators import RegexValidator
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None):
@@ -87,12 +86,14 @@ class User(AbstractBaseUser):
 
 class UserProfile(models.Model):
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-    avatar = models.ImageField(upload_to='avatar/', blank=True, null=True, max_length=1048576)  # 1MB
+    avatar = models.ImageField(
+        upload_to='avatar/', blank=True, null=True, max_length=1048576)  # 1MB
     location = models.CharField(max_length=50)
-    phone_number = models.CharField(max_length=10, blank=True, unique = True,
+    phone_number = models.CharField(max_length=10, blank=True, unique=True,
                                     validators=[RegexValidator(regex='^[0-9]{10}$', message='Enter a 10 digit phone number.',),])
 
     is_online = models.BooleanField(default=False)

@@ -1,14 +1,7 @@
 from django.db import models
-
 from userauth.models import UserProfile
-
 import datetime
-
 from django.db.models import F
-
-# - => Descending
-
-# Background
 
 
 class WorkExperience(models.Model):
