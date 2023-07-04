@@ -13,6 +13,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 from rest_framework import filters
 from django.core.mail import send_mail
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 
 def get_tokens_for_user(user):
@@ -44,6 +46,7 @@ class UserCreateView(views.APIView):
 
     serializer_class = UserSerializer
 
+    @swagger_auto_schema(request_body=UserSerializer)
     def post(self, request):
         try:
             User.objects.get(email__iexact=request.data['email'])
@@ -100,6 +103,7 @@ class UserProfileCreateView(views.APIView):
         except:
             raise Http404
 
+    @swagger_auto_schema(request_body=UserProfileSerializer)
     def post(self, request, user_id):
         data = request.data.copy()
         data['user'] = user_id
@@ -213,7 +217,7 @@ class OTPSend(views.APIView):
 
 
 class UserInfo(views.APIView):
-
+    @swagger_auto_schema()
     def get(self, request):
         user = request.user.profile
 
