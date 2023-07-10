@@ -275,15 +275,31 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class Step1Serializer(serializers.ModelSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    # profile_pic = serializers.SerializerMethodField(
+    #     source='profile.profile_pic', read_only=True)
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                "User with this email already exists. Please sign in or verify your account.")
+        return value
+
+    def validate_password(self, value):
+        return value
+
     class Meta:
         model = User
         fields = ['email', 'password']
 
 
 class Step2Serializer(serializers.ModelSerializer):
+    phone_number = PhoneNumberField()
+
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name', 'date_of_birth']
+        fields = ['first_name', 'last_name', 'date_of_birth', 'phone_number']
 
 
 class Step3MechanicSerializer(serializers.ModelSerializer):

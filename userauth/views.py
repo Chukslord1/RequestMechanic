@@ -192,6 +192,17 @@ class Step1RegistrationView(generics.CreateAPIView):
         user.save()
         profile = Profile(user=user)
         profile.save()
+        email = serializer.validated_data["email"]
+        subject = "Registration Verification OTP"
+        try:
+            otp_code = generate_otp(email, subject)
+        except Exception as e:
+            # user.delete()  # Delete the user if OTP generation fails
+            return create_error_response(message=f"An error occurred while generating the OTP:", data={str(e)},
+                                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return create_success_response(
+            data=serializer.data, message="Registration successful.", status_code=status.HTTP_201_CREATED)
 
 
 class Step2RegistrationView(generics.UpdateAPIView):
