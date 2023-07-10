@@ -1,252 +1,215 @@
-from rest_framework import views, generics
-from userauth.serializers import UserSerializer, UserProfileSerializer, MyTokenObtainPairSerializer, UserProfileSearchSerailizer
-from userauth.models import User, UserProfile, OTPModel
-from userprofile.models import WorkExperience, Education, SocialProfile
+# views.py
+from rest_framework import generics, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.http import Http404
-from rest_framework import status
-from rest_framework.permissions import AllowAny
-import time
-from random import randint
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.utils import timezone
-from rest_framework import filters
-from django.core.mail import send_mail
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
+from microservices.otp import generate_otp, verify_otp
+from .serializers import (
+    LoginSerializer, PasswordResetSerializer, SetNewPasswordSerializer,
+    SubmitEmailSerializer, UserSerializer, LoginPinSerializer,
+    LogoutSerializer, OTPVerificationSerializer, DeleteAccountSerializer,
+    Step1Serializer, Step2Serializer, Step3MechanicSerializer,
+    Step3OwnerSerializer, SupportingDocumentSerializer, CarBrandSerializer
+)
+from .models import User, CarBrand, Profile
+from microservices.response import create_error_response, create_success_response
 
 
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
+class LoginView(generics.CreateAPIView):
+    serializer_class = LoginSerializer
 
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token),
-    }
-
-
-def OTP_create_send(email_linked, phone_linked):
-    OTPModel.objects.filter(email_linked__iexact=email_linked).delete()
-    otp = randint(100000, 999999)
-    while OTPModel.objects.filter(otp=otp):
-        otp = randint(100000, 999999)
-    time_of_creation = int(time.time())
-    OTPModel.objects.create(otp=otp, email_linked=email_linked,
-                            phone_linked=phone_linked, time_created=time_of_creation)
-    return None
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return create_success_response(message="Login successful.",
+                                       data=serializer.data, status_code=status.HTTP_200_OK)
 
 
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+class LoginPinView(generics.CreateAPIView):
+    serializer_class = LoginPinSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        return create_success_response(message="Login successful.",
+                                       data=data, status_code=status.HTTP_200_OK)
 
 
-class UserCreateView(views.APIView):
-    permission_classes = [AllowAny]
+class SendOTPView(generics.CreateAPIView):
+    serializer_class = SubmitEmailSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+        subject = "Signup Verification OTP"
+        try:
+            otp = generate_otp(email, subject)
+            return create_success_response(message="Please check your email for OTP", status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return create_error_response(message="Error occurred. Please try again.", status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class VerifyOTPView(generics.CreateAPIView):
+    serializer_class = OTPVerificationSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        otp_code = serializer.validated_data["otp_code"]
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return create_error_response(
+                message=f"User with email {email} does not exist", status_code=status.HTTP_400_BAD_REQUEST)
+
+        verified = verify_otp(otp_code, email)
+        if verified:
+            if hasattr(user, 'is_verified') and not user.is_verified:
+                user.is_verified = True
+                user.save()
+            return create_success_response(
+                message="OTP Verified Successfully", status_code=status.HTTP_200_OK)
+        else:
+            return create_error_response(
+                message="Invalid OTP", status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class UserRegisterView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
-    @swagger_auto_schema(request_body=UserSerializer)
-    def post(self, request):
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        email = serializer.validated_data["email"]
+        subject = "Registration Verification OTP"
         try:
-            User.objects.get(email__iexact=request.data['email'])
-            return Response({'detail': 'User with this email already exists'}, status=status.HTTP_226_IM_USED)
-        except:
-            serializer = UserSerializer(
-                data=request.data, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            otp_code = generate_otp(email, subject)
+        except Exception as e:
+            # user.delete()  # Delete the user if OTP generation fails
+            return create_error_response(message=f"An error occurred while generating the OTP:", data={str(e)},
+                                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def patch(self, request):
+        return create_success_response(
+            data=serializer.data, message="Registration successful.", status_code=status.HTTP_201_CREATED)
 
+
+class PasswordResetView(generics.CreateAPIView):
+    serializer_class = PasswordResetSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        subject = "Password Reset"
         try:
-            data = request.data.copy()
-            user_id = data.get('user_id')
-            new_password = data.get('password')
-            user = User.objects.get(id=user_id)
-        except:
-            raise Http404
-
-        if request.user == User.objects.get(pk=user_id):
-            if new_password:
-                if not user.check_password(new_password):
-                    user.set_password(new_password)
-                    user.save()
-                    return Response({'detail': 'Password changed successfully'}, status=status.HTTP_202_ACCEPTED)
-                return Response({'detail': 'Password is same as old.'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-            return Response({'detail': 'Password must not be null'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'detail': 'You can\'t change password of other users.'}, status=status.HTTP_401_UNAUTHORIZED)
+            user = User.objects.get(email=email)
+            otp_code = generate_otp(email, subject)
+            return create_success_response("OTP sent to your email.", status_code=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return create_error_response("Email does not exist.", status_code=status.HTTP_400_BAD_REQUEST)
 
 
-class UserProfileCreateView(views.APIView):
-    permission_classes = [AllowAny]
+class SetNewPasswordView(generics.UpdateAPIView):
+    serializer_class = SetNewPasswordSerializer
 
-    serializer_class = UserProfileSerializer
+    def update(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, context={
+            "email": request.data.get("email")})
+        serializer.is_valid(raise_exception=True)
 
-    def get_user(self, profile_id):
-        try:
-            return UserProfile.objects.get(id=profile_id)
-        except:
-            raise Http404
-
-    def get_industry(self, profile_id):
-        try:
-            return WorkExperience.objects.get(user=profile_id)
-        except:
-            raise Http404
-
-    def get_academia(self, profile_id):
-        try:
-            return Education.objects.get(user=profile_id)
-        except:
-            raise Http404
-
-    @swagger_auto_schema(request_body=UserProfileSerializer)
-    def post(self, request, user_id):
-        data = request.data.copy()
-        data['user'] = user_id
-        serializer = UserProfileSerializer(
-            data=data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            if data.get('is_employed') == 'true':
-                print('here')
-                WorkExperience.objects.create(user=self.get_user(serializer.data['id']),
-                                              organization_name=f"{data['organization_name']}",
-                                              position=data['position'],
-                                              start_date=data['start_date'],
-                                              end_date=data['end_date'])
-
-                SocialProfile.objects.create(user=self.get_user(serializer.data['id']),
-                                             tagline=f"{data['position']} at {data['organization_name']}",
-                                             current_industry=self.get_industry(serializer.data['id']))
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            Education.objects.create(user=self.get_user(serializer.data['id']),
-                                     organization_name=f"{data['organization_name']}",
-                                     start_date=data['start_date'],
-                                     end_date=data['end_date'])
-
-            SocialProfile.objects.create(user=self.get_user(serializer.data['id']),
-                                         tagline=f"{data['position']} at {data['organization_name']}",
-                                         current_academia=self.get_academia(serializer.data['id']))
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_201_CREATED)
-
-    def patch(self, request, user_id=None):
-        try:
-            data = request.data.copy()
-            profile_id = data['profile_id']
-            user = UserProfile.objects.get(id=profile_id)
-        except:
-            raise Http404
-
-        phone_linked = data.get('phone_number')
-        queryset = OTPModel.objects.filter(phone_linked=phone_linked)
-
-        if not queryset.exists():
-            email_linked = User.objects.get(profile=user).email
-            OTP_create_send(email_linked, phone_linked)
-            serializer = UserProfileSerializer(
-                user, data=data, partial=True, context={'request': request})
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'detail': 'Phone number already in use.'}, status=status.HTTP_403_FORBIDDEN)
-
-
-class UserProfileView(views.APIView):
-    serializer_class = UserProfileSerializer
-
-    def get(self, request, profile_id):
-        try:
-            user = UserProfile.objects.get(id=profile_id)
-        except:
-            raise Http404
-        serializer = UserProfileSerializer(user, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class OTPVerificationView(views.APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        data = request.data.copy()
-
-        request_phone = data.get('phone_number')
-        request_OTP_code = data.get('otp')
-        current_time = int(time.time())
+        otp_code = serializer.validated_data["otp_code"]
+        email = serializer.context.get("email")
 
         try:
-            query = OTPModel.objects.get(phone_linked=request_phone)
-        except:
-            raise Http404
+            user = serializer.validated_data["user"]
+        except User.DoesNotExist:
+            return create_error_response(
+                f"User with email {email} does not exist", status_code=status.HTTP_400_BAD_REQUEST)
 
-        generated_otp = query.otp
-        time_created = query.time_created
-
-        if generated_otp == request_OTP_code:
-            if current_time - time_created < 300:  # 5 Minutes
-                user = User.objects.get(email__iexact=query.email_linked)
-                user.active = True
-                user.save()
-                query.delete()
-                return Response(get_tokens_for_user(user), status=status.HTTP_200_OK)
-            return Response({'detail': 'OTP expired. Request for OTP again.'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'detail': 'Wrong OTP Entered.'}, status=status.HTTP_403_FORBIDDEN)
-
-
-class OTPSend(views.APIView):
-    permission_classes = [AllowAny]
-
-    def post(self, request):
-        request_phone_number = request.data.get("phone_number", "")
-
+        password = serializer.validated_data["password"]
+        user.set_password(password)
         try:
-            user = UserProfile.objects.get(phone_number=request_phone_number)
-            email_linked = user.user.email
-            user_id = user.user.id
-        except:
-            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            user.save()
+        except Exception as e:
+            return create_error_response(f"An error occurred while saving the new password: {str(e)}",
+                                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        if request_phone_number:
-            OTP_create_send(email_linked, request_phone_number)
-            return Response({'user_id': user_id}, status=status.HTTP_202_ACCEPTED)
+        return create_success_response(message="Password Reset Successful", status_code=status.HTTP_200_OK)
 
 
-class UserInfo(views.APIView):
-    @swagger_auto_schema()
-    def get(self, request):
-        user = request.user.profile
+class LogoutView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LogoutSerializer
 
-        user_name = f'{user.first_name} {user.last_name}'
-        try:
-            user_avatar = request.build_absolute_uri(user.avatar.url)
-        except:
-            user_avatar = None
-        user_tagline = user.social_profile.tagline
-        bookmarks = user.bookmarked_posts.count()
-
-        return Response({'user_name': user_name,
-                        'user_avatar': user_avatar,
-                         'user_tagline': user_tagline, }, status=status.HTTP_200_OK)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return create_success_response("Logout Successful", serializer.data, status_code=serializer.data['status'])
 
 
-# Search
+class DeleteAccountView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = DeleteAccountSerializer
 
-class UserSearchView(generics.ListAPIView):
-    queryset = UserProfile.objects.all()
-    serializer_class = UserProfileSearchSerailizer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['first_name', 'last_name', 'location',]
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(
+            data=request.data, context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return create_success_response("Account Deleted", serializer.data, status_code=serializer.data['status'])
 
 
-class ProfileRecommendView(views.APIView):
-    def get(self, request):
-        user = request.user.profile
-        query = UserProfile.objects.exclude(id=user.id).order_by('?')[:10]
-        serializer = UserProfileSearchSerailizer(
-            query, many=True, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class CarBrandListView(generics.ListAPIView):
+    queryset = CarBrand.objects.all()
+    serializer_class = CarBrandSerializer
+
+
+class CarBrandCreateView(generics.CreateAPIView):
+    queryset = CarBrand.objects.all()
+    serializer_class = CarBrandSerializer
+
+
+class SupportingDocumentUploadView(generics.CreateAPIView):
+    serializer_class = SupportingDocumentSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class Step1RegistrationView(generics.CreateAPIView):
+    serializer_class = Step1Serializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        user.set_password(serializer.validated_data['password'])
+        user.save()
+        profile = Profile(user=user)
+        profile.save()
+
+
+class Step2RegistrationView(generics.UpdateAPIView):
+    serializer_class = Step2Serializer
+
+    def get_object(self):
+        return self.request.user.profile
+
+
+class Step3MechanicRegistrationView(generics.UpdateAPIView):
+    serializer_class = Step3MechanicSerializer
+
+    def get_object(self):
+        return self.request.user.profile
+
+
+class Step3OwnerRegistrationView(generics.UpdateAPIView):
+    serializer_class = Step3OwnerSerializer
+
+    def get_object(self):
+        return self.request.user

@@ -1,44 +1,55 @@
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.db import models
-from userauth.forms import UserAdminCreationForm, UserAdminChangeForm
-from userauth.models import User, UserProfile, OTPModel
+from .models import User, Profile
+from django.utils.translation import gettext_lazy as _
+from microservices.expo_push_service import send_push_message
+from .models import PushToken
+
+# Register your models here.
 
 
-admin.site.register(OTPModel)
-
-
-# class UserProfileInline(admin.StackedInline):
-#     model = UserProfile
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     can_delete = False
-
-
+@admin.register(User)
 class UserAdmin(BaseUserAdmin):
+    """Define admin model for custom User model with no email field."""
 
-    form = UserAdminChangeForm
-    add_form = UserAdminCreationForm
-
-    # columns to show for each models object
-    list_display = ('email', 'admin',)
-    list_filter = ('admin',)
     fieldsets = (
-        (None, {'fields': ('email', 'password')}),
-        ('Permissions', {'fields': ('active', 'admin', 'staff',)}),
+        (None, {'fields': ('username', 'phone_number',
+         'email', 'password', 'first_name', 'last_name')}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
+                                       'groups', 'user_permissions')}),
     )
-
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'active', 'admin', 'staff')}
-         ),
+            'fields': ('email', 'password1', 'password2'),
+        }),
     )
+    list_display = ('email', 'is_staff', 'username')
     search_fields = ('email',)
     ordering = ('email',)
-    filter_horizontal = ()
-    # inlines = (UserProfileInline,)
 
 
-admin.site.register(User, UserAdmin)
-admin.site.unregister(Group)
+admin.site.register(Profile)
+
+
+@admin.register(PushToken)
+class PushTokenAdmin(admin.ModelAdmin):
+    list_display = ('token', 'active')
+    actions = ['send_push_notification']
+
+    def send_push_notification(self, request, queryset):
+        for push_token in queryset:
+            if push_token.active:
+                # Customize your push notification message here
+                message = "Hello, this is a push notification!"
+                try:
+                    send_push_message(push_token.token, message)
+                    self.message_user(
+                        request, "Push notification sent successfully.")
+                except Exception as e:
+                    self.message_user(
+                        request, f"Failed to send push notification: {str(e)}")
+            else:
+                self.message_user(
+                    request, "Inactive push token. Skipping notification.")
+    send_push_notification.short_description = "Send push notification"

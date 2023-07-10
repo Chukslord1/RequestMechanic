@@ -1,42 +1,46 @@
 from django.urls import path
-from django.conf import settings
-from userauth import views
-from django.conf.urls.static import static
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-
+from rest_framework_simplejwt.views import TokenRefreshView
+from .views import (
+    LoginView,
+    PasswordResetView,
+    SendOTPView,
+    SetNewPasswordView,
+    UserRegisterView,
+    VerifyOTPView,
+    LoginPinView,
+    LogoutView,
+    DeleteAccountView,
+    CarBrandCreateView,
+    CarBrandListView,
+    SupportingDocumentUploadView,
+    Step1RegistrationView,
+    Step2RegistrationView,
+    Step3OwnerRegistrationView,
+    Step3MechanicRegistrationView
 )
 
-
 urlpatterns = [
-
-    path('login/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('login/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
-    # Sign-UP
-    path('create/', views.UserCreateView.as_view()),
-    path('create/profile/<int:user_id>/',
-         views.UserProfileCreateView.as_view()),
-    path('account/verify/', views.OTPVerificationView.as_view()),
-
-    # OTP
-    path('otp/resend/', views.OTPSend.as_view()),
-
-    # Password Reset
-    path('password/reset/', views.OTPSend.as_view()),
-    path('password/reset/otp/verify/', views.OTPVerificationView.as_view()),
-    path('password/reset/new_password/', views.UserCreateView.as_view()),
-
-
-    path('profile/<int:profile_id>/', views.UserProfileView.as_view()),
-
-    path('info/', views.UserInfo.as_view()),
-
-    # Search
-    path('', views.UserSearchView.as_view()),
-
-    path('view/', views.ProfileRecommendView.as_view()),
-
-
+    path("send-otp/", SendOTPView.as_view()),
+    path("verify-otp/", VerifyOTPView.as_view()),
+    # path("register/", UserRegisterView.as_view()),
+    path("login/", LoginView.as_view()),
+    # path("login/pin/", LoginPinView.as_view()),
+    path("password-reset/", PasswordResetView.as_view()),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    # path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
+    path("set-new-password/", SetNewPasswordView.as_view()),
+    path("token/refresh/", TokenRefreshView.as_view()),
+    path('car-brands/', CarBrandListView.as_view(), name='car-brand-list'),
+    path('car-brands/create/', CarBrandCreateView.as_view(),
+         name='car-brand-create'),
+    path('supporting-documents/', SupportingDocumentUploadView.as_view(),
+         name='supporting-document-upload'),
+    path('registration/step1/', Step1RegistrationView.as_view(),
+         name='registration-step1'),
+    path('registration/step2/', Step2RegistrationView.as_view(),
+         name='registration-step2'),
+    path('registration/step3/mechanic/', Step3MechanicRegistrationView.as_view(),
+         name='registration-step3-mechanic'),
+    path('registration/step3/owner/', Step3OwnerRegistrationView.as_view(),
+         name='registration-step3-owner'),
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
