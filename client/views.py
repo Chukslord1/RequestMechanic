@@ -26,10 +26,11 @@ class MatchMechanicView(APIView):
         user_point = GEOSGeometry(f'POINT({longitude} {latitude})', srid=4326)
 
         mechanics = Mechanic.objects.filter(
-            account_type='mechanic', user__car_brand_id=car_brand_id
+            account_type='mechanic', user__car_brand_id=car_brand_id, is_available=True, rating__gte=3.0
         ).annotate(distance=Distance('location', user_point)).order_by('distance')
 
-        nearest_mechanic = mechanics.first()
+            
+        nearest_mechanic = mechanics.objects.all()[0:2]
 
         if nearest_mechanic is None:
             return Response({'error': 'No mechanics found'}, status=404)

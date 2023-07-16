@@ -98,8 +98,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # custom
-    # 'authentication',
     'userauth',
+    'client',
     # 'userprofile',
 
     # installed

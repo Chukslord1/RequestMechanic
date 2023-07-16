@@ -7,7 +7,8 @@ class MechanicSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'email', 'phone_number', 'car_brand',
-                  'car_model', 'completed_registration']
+                  'car_model', 'completed_registration', 'is_available',
+                   'rating', 'rate']
 
 
 class MatchMechanicSerializer(serializers.ModelSerializer):

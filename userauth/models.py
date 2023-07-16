@@ -42,6 +42,7 @@ class User(AbstractUser):
     email_verified = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_available = models.BooleanField(default=True, null=True, blank=True)
     is_staff = models.BooleanField(default=False)
     account_type = models.CharField(
         choices=AUCCOUNT_TYPES, max_length=100, default='owner')
@@ -53,6 +54,8 @@ class User(AbstractUser):
     completed_registration = models.BooleanField(default=False)
     car_brand = models.ManyToManyField(CarBrand)
     car_model = models.CharField(max_length=255, blank=True, null=True)
+    rating = models.FloatField(blank=True, null=True)
+    rate = models.FloatField(blank=True, null=True)
 
     def set_pin(self, raw_pin):
         self.pin = make_password(raw_pin)
