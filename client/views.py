@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from .models import Request, Mechanic
 from .serializers import RequestSerializer, MatchMechanicSerializer
 from django.conf import settings
+from pyresponse.response import create_error_response, create_success_response
 
 
 class MatchMechanicView(APIView):
@@ -15,7 +16,7 @@ class MatchMechanicView(APIView):
         description = request.data.get('description')
 
         if not user_address or not car_brand_id or not description:
-            return Response({'error': 'Invalid address, car brand, or description'}, status=400)
+            return create_error_response(message='Invalid address, car brand, or description', status_code=400, )
 
         # Convert address to latitude and longitude
         latitude, longitude = get_coordinates(user_address)
@@ -32,7 +33,7 @@ class MatchMechanicView(APIView):
         nearest_mechanic = mechanics.first()
 
         if nearest_mechanic is None:
-            return Response({'error': 'No mechanics found'}, status=404)
+            return create_error_response(message='No mechanics found', status_code=404)
 
         serializer = MatchMechanicSerializer(nearest_mechanic)
 
@@ -43,7 +44,7 @@ class MatchMechanicView(APIView):
             description=description
         )
 
-        return Response(serializer.data)
+        return create_success_response(data=serializer.data, message='Success', status_code=200)
 
 
 def get_coordinates(address):
