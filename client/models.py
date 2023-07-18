@@ -10,7 +10,7 @@ class MechanicManager(models.Manager):
 class Mechanic(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, primary_key=True)
-    location = models.PointField()
+    # location = models.PointField()
 
     objects = MechanicManager()
 

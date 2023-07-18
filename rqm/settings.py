@@ -88,7 +88,8 @@ cloudinary.config(
 )
 
 # Application definition
-
+# Google Maps
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -107,6 +108,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
     'django_ratelimit',
     'rest_framework',
+    # 'googlemaps',
     'import_export',
     'corsheaders',
     'cloudinary',
