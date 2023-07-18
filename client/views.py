@@ -48,11 +48,7 @@ class MatchMechanicView(APIView):
             rating__gte=3.0
         ).annotate(distance=Distance('user__address', user_point)).order_by('distance')
 
-<<<<<<< HEAD
         nearest_mechanics = mechanics[:2]  # Get the first two mechanics from the queryset
-=======
-        nearest_mechanics = mechanics[:2]
->>>>>>> 64b4df18a534099add3e7a16309880814f4e4e70
 
         if not nearest_mechanics:
             return Response({'error': 'No mechanics found'}, status=404)
