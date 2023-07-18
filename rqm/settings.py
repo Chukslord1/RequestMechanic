@@ -271,6 +271,8 @@ CACHES = {
         }
     }
 }
+GDAL_LIBRARY_PATH = '/opt/homebrew/Cellar/gdal/3.6.4_7/lib/libgdal.32.3.6.4.dylib'
+GEOS_LIBRARY_PATH = '/opt/homebrew/Cellar/geos/3.12.0/lib/libgeos_c.dylib'
 
 
 PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')

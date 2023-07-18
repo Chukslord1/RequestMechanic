@@ -29,13 +29,12 @@ class MatchMechanicView(APIView):
             account_type='mechanic', user__car_brand_id=car_brand_id, is_available=True, rating__gte=3.0
         ).annotate(distance=Distance('location', user_point)).order_by('distance')
 
-            
-        nearest_mechanic = mechanics.objects.all()[0:2]
+        nearest_mechanics = mechanics[:2]  # Get the first two mechanics from the queryset
 
-        if nearest_mechanic is None:
+        if not nearest_mechanics:
             return Response({'error': 'No mechanics found'}, status=404)
 
-        serializer = MatchMechanicSerializer(nearest_mechanic)
+        serializer = MatchMechanicSerializer(nearest_mechanics, many=True)
 
         # Create a request
         request_obj = Request.objects.create(
