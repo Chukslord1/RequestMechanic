@@ -8,15 +8,7 @@ class MechanicSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'email', 'phone_number', 'car_brand',
                   'car_model', 'completed_registration', 'is_available',
-                   'rating', 'rate']
-
-
-class MatchMechanicSerializer(serializers.ModelSerializer):
-    user = MechanicSerializer()
-
-    class Meta:
-        model = Mechanic
-        fields = ['user', 'location']
+                  'rating', 'rate']
 
 
 class RequestSerializer(serializers.ModelSerializer):
@@ -30,4 +22,4 @@ class MatchMechanicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mechanic
-        fields = ['user', 'location']
+        fields = ['user']

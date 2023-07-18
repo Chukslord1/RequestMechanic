@@ -1,6 +1,7 @@
 # views.py
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from microservices.otp import generate_otp, verify_otp
 from .serializers import (
@@ -205,22 +206,37 @@ class Step1RegistrationView(generics.CreateAPIView):
             data=serializer.data, message="Registration successful.", status_code=status.HTTP_201_CREATED)
 
 
-class Step2RegistrationView(generics.UpdateAPIView):
+class Step2RegistrationView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = Step2Serializer
 
     def get_object(self):
+        user_id = self.kwargs['id']
+        if self.request.user.id != user_id:
+            raise PermissionDenied(
+                "You do not have permission to perform this action.")
         return self.request.user.profile
 
 
-class Step3MechanicRegistrationView(generics.UpdateAPIView):
+class Step3MechanicRegistrationView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = Step3MechanicSerializer
 
     def get_object(self):
+        user_id = self.kwargs['id']
+        if self.request.user.id != user_id:
+            raise PermissionDenied(
+                "You do not have permission to perform this action.")
         return self.request.user.profile
 
 
-class Step3OwnerRegistrationView(generics.UpdateAPIView):
+class Step3OwnerRegistrationView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = Step3OwnerSerializer
 
     def get_object(self):
+        user_id = self.kwargs['id']
+        if self.request.user.id != user_id:
+            raise PermissionDenied(
+                "You do not have permission to perform this action.")
         return self.request.user

@@ -277,7 +277,7 @@ class UserSerializer(serializers.ModelSerializer):
 class Step1Serializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    account_type = serializers.ChoiceField(choices=User.AUCCOUNT_TYPES)
+    account_type = serializers.ChoiceField(choices=User.ACCOUNT_TYPES)
 
     # profile_pic = serializers.SerializerMethodField(
     #     source='profile.profile_pic', read_only=True)
@@ -301,13 +301,14 @@ class Step2Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name', 'date_of_birth', 'phone_number']
+        fields = ['id', 'first_name', 'last_name',
+                  'date_of_birth', 'phone_number']
 
 
 class Step3MechanicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['car_speciality', 'education_level']
+        fields = ['id', 'car_speciality', 'education_level']
 
 
 class Step3OwnerSerializer(serializers.ModelSerializer):
@@ -316,7 +317,7 @@ class Step3OwnerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['car_brand', 'car_model']
+        fields = ['id', 'car_brand', 'car_model']
 
 
 class PasswordResetSerializer(serializers.Serializer):

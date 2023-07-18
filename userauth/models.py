@@ -21,7 +21,8 @@ class CarBrand(models.Model):
 class SupportingDocument(models.Model):
     id = models.CharField(primary_key=True, max_length=255,
                           default=KUIDGenerator.generate_kuid)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
     document = models.FileField(upload_to='supporting_documents/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -30,7 +31,7 @@ AUTH_PROVIDERS = {'facebook': 'facebook', 'google': 'google', 'email': 'email'}
 
 
 class User(AbstractUser):
-    AUCCOUNT_TYPES = (
+    ACCOUNT_TYPES = (
         ('owner', 'owner'),
         ('mechanic', 'mechanic'),
     )
@@ -45,7 +46,7 @@ class User(AbstractUser):
     is_available = models.BooleanField(default=True, null=True, blank=True)
     is_staff = models.BooleanField(default=False)
     account_type = models.CharField(
-        choices=AUCCOUNT_TYPES, max_length=100, default='owner')
+        choices=ACCOUNT_TYPES, max_length=100, default='owner')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     pin = models.CharField(max_length=128, null=True)

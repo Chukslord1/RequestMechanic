@@ -52,8 +52,8 @@ urlpatterns = [
             cache_timeout=0), name='schema-redoc'),
     path('admin/', admin.site.urls),
     path(api_version + '/user/', include('userauth.urls')),
-    path(api_version + '/client/', include ('client.urls')),
-    # path(api_version + '/social_auth/', include('social_auth.urls')),
+    path(api_version + '/client/', include('client.urls')),
+    path(api_version + '/calls/', include('calls.urls')),
     # path(api_version + '/profile/', include('userprofile.urls')),
     path('sentry-debug/', trigger_error),
 
