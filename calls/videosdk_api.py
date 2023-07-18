@@ -2,22 +2,23 @@ import jwt
 import datetime
 import requests
 
-VIDEOSDK_API_KEY = "YOUR_API_KEY"
-VIDEOSDK_SECRET_KEY = "YOUR_SECRET_KEY"
+VIDEOSDK_API_KEY = "91f5193d-a884-43ac-aaf5-be36b1f6a65b"
+VIDEOSDK_SECRET_KEY = "701a6f63f22e42ecfffc3a40ed9bc01c0f08b240106f444fc084c8cddea6d9fb"
 TOKEN_EXPIRATION_SECONDS = 7200
 
 
 def generate_videosdk_token():
-    expiration = datetime.datetime.now(
-    ) + datetime.timedelta(seconds=TOKEN_EXPIRATION_SECONDS)
-    payload = {
-        'exp': expiration,
-        'apikey': VIDEOSDK_API_KEY,
-        'permissions': ['allow_join', 'allow_mod'],
-    }
-    token = jwt.encode(
-        payload=payload, key=VIDEOSDK_SECRET_KEY, algorithm='HS256')
-    return token.decode('UTF-8')
+
+    expiration_in_seconds = TOKEN_EXPIRATION_SECONDS
+    expiration = datetime.datetime.now() + datetime.timedelta(seconds=expiration_in_seconds)
+
+    # token = jwt.encode(payload={
+    #     'exp': expiration,
+    #     'apikey': VIDEOSDK_API_KEY,
+    #     'permissions': ['allow_join', 'allow_mod'],
+    # }, key=VIDEOSDK_SECRET_KEY, algorithm='HS256')
+    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlrZXkiOiI2OWU3ZTgzYS1iYmUyLTQ5YmUtODI4Mi05ZTQ1ODExZDUyNTIiLCJwZXJtaXNzaW9ucyI6WyJhbGxvd19qb2luIl0sImlhdCI6MTY4OTY4Mzg3NSwiZXhwIjoxNjkwMjg4Njc1fQ.HIIUY-NR7K9st845E7WKxuz5NhoaPqEvBDJBs-Ud2Qs'
+    return token
 
 
 def create_videosdk_room(custom_room_id):
@@ -35,6 +36,7 @@ def create_videosdk_room(custom_room_id):
     }
     response = requests.post(url, json=data, headers=headers)
     return response.json()
+    print(response.json())
 
 
 def end_videosdk_room(room_id):

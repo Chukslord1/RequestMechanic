@@ -99,8 +99,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # custom
-    'userauth',
+    'calls',
     'client',
+    'userauth',
     # 'userprofile',
 
     # installed

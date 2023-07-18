@@ -1,15 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth.models import User
+from userauth.models import User
 from .models import Call, Room
 from .serializers import CallSerializer
 from .videosdk_api import generate_videosdk_token, create_videosdk_room, end_videosdk_room
-    
-
-VIDEOSDK_API_KEY = "YOUR_API_KEY"
-VIDEOSDK_SECRET_KEY = "YOUR_SECRET_KEY"
-TOKEN_EXPIRATION_SECONDS = 7200
 
 
 class InitiateCallView(APIView):
@@ -23,15 +18,17 @@ class InitiateCallView(APIView):
         except User.DoesNotExist:
             return Response({'error': 'Invalid caller or participant ID'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Replace with your custom room ID logic
         room_data = create_videosdk_room(custom_room_id="your_custom_room_id")
+        print("room_data:", room_data)  # Add this line to check the room_data
 
         room_id = room_data.get('roomId')
         custom_room_id = room_data.get('customRoomId')
+        print("room_id:", room_id)  # Add this line to check the room_id
 
         room = Room.objects.create(
             room_id=room_id, custom_room_id=custom_room_id)
         room.participants.add(caller, participant)
+        room.save()  # Save the room before creating the call
 
         call = Call.objects.create(
             caller=caller, participant=participant, room=room)

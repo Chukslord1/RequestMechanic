@@ -277,7 +277,7 @@ class UserSerializer(serializers.ModelSerializer):
 class Step1Serializer(serializers.ModelSerializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    account_type = serializers.ChoiceField(choices=User.AUCCOUNT_TYPES)
+    account_type = serializers.ChoiceField(choices=User.ACCOUNT_TYPES)
 
     # profile_pic = serializers.SerializerMethodField(
     #     source='profile.profile_pic', read_only=True)
