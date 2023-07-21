@@ -29,3 +29,6 @@ COPY . .
 
 # Remove the requirements file after installing dependencies
 RUN rm -f requirements.txt
+# Install Python GDAL library
+RUN pip install GDAL
+
