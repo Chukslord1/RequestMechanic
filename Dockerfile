@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     gdal-bin \
     libgdal-dev
 
+RUN apt-get -y install libgdal-dev
+
+
 # Set environment variables required for GDAL
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
