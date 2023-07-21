@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     gdal-bin \
     libgdal-dev
 
-RUN apt-get -y install libgdal-dev
+RUN yum -y install gdal-devel
 
 
 # Set environment variables required for GDAL
