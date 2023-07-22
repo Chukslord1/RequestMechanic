@@ -260,22 +260,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Celery configuration
 CELERY_TIMEZONE = 'Africa/Lagos'
-CELERY_BROKER_URL = 'redis://default:bmzkyITIlxNdfgi6VdfXHOQf7pIjmg1S@redis-15208.c270.us-east-1-3.ec2.cloud.redislabs.com:15208'
-CELERY_RESULT_BACKEND = 'redis://default:bmzkyITIlxNdfgi6VdfXHOQf7pIjmg1S@redis-15208.c270.us-east-1-3.ec2.cloud.redislabs.com:15208'
+CELERY_BROKER_URL = 'redis-12847.c259.us-central1-2.gce.cloud.redislabs.com:12847'
+CELERY_RESULT_BACKEND = 'redis-12847.c259.us-central1-2.gce.cloud.redislabs.com:12847'
 CELERY_TASK_SERIALIZER = 'json'
 
 # Redis configuration
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://default:bmzkyITIlxNdfgi6VdfXHOQf7pIjmg1S@redis-15208.c270.us-east-1-3.ec2.cloud.redislabs.com:15208',
+        'LOCATION': 'redis://default:jKjU1he85jBUdJQOx1tZ1hfEvrsUmjaP@redis-12847.c259.us-central1-2.gce.cloud.redislabs.com:12847',
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
 
-# GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
+GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
 # GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
 
 
