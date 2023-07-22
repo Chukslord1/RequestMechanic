@@ -35,6 +35,7 @@ exponent-server-sdk==2.0.0
 filelock==3.10.0
 flower==1.2.0
 frozenlist==1.3.3
+GDAL==3.4.1
 google-auth==2.16.0
 googlemaps==4.10.0
 GDAL==3.6.4
