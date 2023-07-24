@@ -1,5 +1,12 @@
 # [START django_app]
-runtime: python38
+runtime: python
+env: flex
+manual_scaling:
+  instances: 4  # Adjust to a value less than or equal to 32
+runtime_config:
+    operating_system: "ubuntu18"
+    runtime_version: "3.8"
+entrypoint: gunicorn -b :$PORT rqm.wsgi:application
 env_variables:
   DEBUG : "True"
   DB_HOST : "/cloudsql/civil-map-359516:us-central1:reqmechpostgres"
