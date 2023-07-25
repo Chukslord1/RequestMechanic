@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from .models import Request, Mechanic
 from userauth.models import User
@@ -12,7 +13,7 @@ import googlemaps
 
 
 class MatchMechanicView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         # Verify permission based on UserID
@@ -48,7 +49,8 @@ class MatchMechanicView(APIView):
             rating__gte=3.0
         ).annotate(distance=Distance('user__address', user_point)).order_by('distance')
 
-        nearest_mechanics = mechanics[:2]  # Get the first two mechanics from the queryset
+        # Get the first two mechanics from the queryset
+        nearest_mechanics = mechanics[:2]
 
         if not nearest_mechanics:
             return Response({'error': 'No mechanics found'}, status=404)

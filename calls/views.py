@@ -5,9 +5,13 @@ from userauth.models import User
 from .models import Call, Room
 from .serializers import CallSerializer
 from .videosdk_api import generate_videosdk_token, create_videosdk_room, end_videosdk_room
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 
 
 class InitiateCallView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         caller_id = request.data.get('caller_id')
         participant_id = request.data.get('participant_id')
@@ -38,6 +42,8 @@ class InitiateCallView(APIView):
 
 
 class EndCallView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         room_id = request.data.get('room_id')
 
