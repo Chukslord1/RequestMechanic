@@ -9,10 +9,10 @@ runtime_config:
 entrypoint: gunicorn -b :$PORT rqm.wsgi:application
 env_variables:
   DEBUG : "True"
-  DB_HOST : "/cloudsql/civil-map-359516:us-central1:reqmechpostgres"
+  DB_HOST : "34.29.63.25"
   DB_NAME : "reqmechdatabase"
   DB_PASSWORD : "@l=;Zu/=%&L=<OUx"
-  DB_PORT : "3307"
+  DB_PORT : "5432"
   DB_USER : "reqmech"
   SECRET_KEY : "sysg0k&abo*_5e%vth+(zea7()%p0_3v5i1x"
   EMAIL_HOST : "smtp.eu.mailgun.org"
