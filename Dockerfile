@@ -15,6 +15,9 @@ ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
 ENV GDAL_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgdal.so.32.3.6.2
 ENV GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so.1.17.1
+ENV CLOUDINARY_CLOUD_NAME =dka33u9mx
+ENV CLOUDINARY_API_KEY =486298165878522
+ENV CLOUDINARY_API_SECRET =TCtyAz6654z7lXKn6CDtJ2f9Yn8
 
 # Set environment variable to avoid buffering
 ENV PYTHONUNBUFFERED=1
