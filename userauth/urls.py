@@ -16,7 +16,8 @@ from .views import (
     Step1RegistrationView,
     Step2RegistrationView,
     Step3OwnerRegistrationView,
-    Step3MechanicRegistrationView
+    Step3MechanicRegistrationView,
+    UserRetrieveView
 )
 
 urlpatterns = [
@@ -27,6 +28,8 @@ urlpatterns = [
     # path("login/pin/", LoginPinView.as_view()),
     path("password-reset/", PasswordResetView.as_view()),
     path('logout/', LogoutView.as_view(), name='logout'),
+    path('user/<str:pk>/', UserRetrieveView.as_view(), name='user-detail'),
+
     # path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
     path("set-new-password/", SetNewPasswordView.as_view()),
     path("token/refresh/", TokenRefreshView.as_view()),

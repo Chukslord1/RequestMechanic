@@ -515,3 +515,10 @@ class DeleteAccountSerializer(serializers.Serializer):
             'status': STATUS_OK,
             'message': DELETE_ACCOUNT_SUCCESS
         }
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = "__all__"
+        extra_kwargs = {"user": {"read_only": True}}
