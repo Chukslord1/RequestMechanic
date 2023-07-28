@@ -211,7 +211,7 @@ class Step2RegistrationView(generics.RetrieveUpdateAPIView):
     serializer_class = Step2Serializer
 
     def get_object(self):
-        user_id = self.kwargs['id']
+        user_id = request.user.id
         if self.request.user.id != user_id:
             raise PermissionDenied(
                 "You do not have permission to perform this action.")
@@ -223,7 +223,7 @@ class Step3MechanicRegistrationView(generics.RetrieveUpdateAPIView):
     serializer_class = Step3MechanicSerializer
 
     def get_object(self):
-        user_id = self.kwargs['id']
+        user_id = request.user.id
         if self.request.user.id != user_id:
             raise PermissionDenied(
                 "You do not have permission to perform this action.")
@@ -235,7 +235,7 @@ class Step3OwnerRegistrationView(generics.RetrieveUpdateAPIView):
     serializer_class = Step3OwnerSerializer
 
     def get_object(self):
-        user_id = self.kwargs['id']
+        user_id = request.user.id
         if self.request.user.id != user_id:
             raise PermissionDenied(
                 "You do not have permission to perform this action.")
