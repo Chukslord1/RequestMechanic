@@ -58,11 +58,13 @@ class LoginSerializer(serializers.ModelSerializer):
     has_pin = serializers.SerializerMethodField()
     tokens = serializers.SerializerMethodField()
     profile_pic = serializers.SerializerMethodField()
+    car_speciality = serializers.SerializerMethodField()
+    education_level = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ["id", "username", "first_name", "last_name", "email",
-                  "phone_number", "password", "has_pin", "profile_pic", "tokens"]
+                  "phone_number", "password", "has_pin", "profile_pic", "account_type", "car_speciality","education_level", "tokens"]
 
     def get_has_pin(self, user):
         if isinstance(user, dict):
@@ -79,6 +81,20 @@ class LoginSerializer(serializers.ModelSerializer):
         try:
             profile = Profile.objects.get(user=user)
             return profile.profile_pic.url
+        except Profile.DoesNotExist:
+            return None
+    
+    def get_car_speciality(self, user):
+        try:
+            profile = Profile.objects.get(user=user)
+            return profile.car_speciality
+        except Profile.DoesNotExist:
+            return None
+    
+    def get_education_level(self, user):
+        try:
+            profile = Profile.objects.get(user=user)
+            return profile.education_level
         except Profile.DoesNotExist:
             return None
 
@@ -172,11 +188,15 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(read_only=True)
     profile_pic = serializers.SerializerMethodField(
         source='profile.profile_pic', read_only=True)
+    car_speciality = serializers.SerializerMethodField(
+        source='profile.car_speciality', read_only=True)
+    education_level = serializers.SerializerMethodField(
+        source='profile.education_level', read_only=True)
 
     class Meta:
         model = User
         fields = ["id", "first_name", "last_name",
-                  "email", "password", "username", "phone_number", "profile_pic", "tokens",]
+                  "email", "password", "username", "phone_number", "profile_pic","car_speciality", "education_level", "tokens",]
 
     def create(self, validated_data):
         email = validated_data.get("email")
@@ -217,13 +237,26 @@ class UserSerializer(serializers.ModelSerializer):
         profile.save()
 
         return user
-
+    
     def get_profile_pic(self, obj):
         if obj.profile.profile_pic:
             return obj.profile.profile_pic
         return cloudinary.utils.cloudinary_url(
             'image/upload/v1674506279/pdokhuhpuwvhmtgxjc2s.jpg')[0]
 
+    def get_car_speciality(self, user):
+        try:
+            profile = Profile.objects.get(user=user)
+            return profile.car_speciality
+        except Profile.DoesNotExist:
+            return None
+
+    def get_education_level(self, user):
+        try:
+            profile = Profile.objects.get(user=user)
+            return profile.education_level
+        except Profile.DoesNotExist:
+            return None
     # @receiver(post_save, sender=User)
     # def create_profile(sender, instance, created, **kwargs):
     #     if created:
