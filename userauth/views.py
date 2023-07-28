@@ -9,7 +9,7 @@ from .serializers import (
     SubmitEmailSerializer, UserSerializer, LoginPinSerializer,
     LogoutSerializer, OTPVerificationSerializer, DeleteAccountSerializer,
     Step1Serializer, Step2Serializer, Step3MechanicSerializer,
-    Step3OwnerSerializer, SupportingDocumentSerializer, CarBrandSerializer
+    Step3OwnerSerializer, SupportingDocumentSerializer, CarBrandSerializer, ProfileSerializer
 )
 from .models import User, CarBrand, Profile
 from microservices.response import create_error_response, create_success_response
@@ -240,3 +240,29 @@ class Step3OwnerRegistrationView(generics.RetrieveUpdateAPIView):
             raise PermissionDenied(
                 "You do not have permission to perform this action.")
         return self.request.user
+
+
+class UserRetrieveView(generics.RetrieveAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, *args, **kwargs):
+        user_id = request.user.id
+        # if int(kwargs['pk']) != user_id:
+        #     return create_error_response(message='You are not authorized to access this resource.', status_code=403)
+
+        user = request.user
+        profile = Profile.objects.get(user=user)
+
+        response_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'phone_number': str(user.phone_number),
+            'first_name': profile.first_name,
+            'last_name': profile.last_name,
+            'account_type': user.account_type,
+            'profile_pic': profile.profile_pic.url if profile.profile_pic else None,
+        }
+
+        return create_success_response(data=response_data, status_code=status.HTTP_200_OK)
