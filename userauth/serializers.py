@@ -64,7 +64,7 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "first_name", "last_name", "email",
-                  "phone_number", "password", "has_pin", "profile_pic", "account_type", "car_speciality","education_level", "tokens"]
+                  "phone_number", "password", "has_pin", "profile_pic", "account_type", "car_brand", "car_speciality","education_level", "tokens"]
 
     def get_has_pin(self, user):
         if isinstance(user, dict):
@@ -196,7 +196,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "first_name", "last_name",
-                  "email", "password", "username", "phone_number", "profile_pic","car_speciality", "education_level", "tokens",]
+                  "email", "password", "username", "phone_number", "profile_pic", "car_brand","car_speciality", "education_level", "tokens",]
 
     def create(self, validated_data):
         email = validated_data.get("email")
